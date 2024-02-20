@@ -1,19 +1,13 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { Public } from 'libs/src/lib/decorators/public-route.decorator';
+import { Get } from '@nestjs/common';
+import { AuthController } from 'libs/src/lib/decorators/auth-controller.decorator';
 import { User } from 'libs/src/lib/decorators/user.decorator';
-import { LoginDto } from 'libs/src/lib/dtos/users/login.dto';
-import { TokenDto } from 'libs/src/lib/dtos/users/token.dto';
+import { SwaggerTagsEnum } from 'libs/src/lib/enums/swagger-tags.enum';
 import { AuthService } from './auth.service';
 
-@Controller('auth')
-export class AuthPublicController {
+@AuthController('auth', SwaggerTagsEnum.Auth)
+// ? I know.. 'AuthAuthController' ??
+export class AuthAuthController {
   constructor(private readonly _authService: AuthService) {}
-
-  @Public()
-  @Post('login')
-  login(@Body() loginDto: LoginDto): Promise<TokenDto> {
-    return this._authService.login(loginDto);
-  }
 
   @Get('profile')
   getProfile(@User() user) {

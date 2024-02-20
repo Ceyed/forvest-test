@@ -4,7 +4,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { UserRepository } from 'libs/src/lib/entities/user/user.repository';
 import { AuthGuard } from 'libs/src/lib/guards/auth.guard';
 import { serverConfig } from 'src/configs/server.config';
-import { AuthPublicController } from './auth.controller.public';
+import { AuthAuthController } from './auth.controller.public';
+import { AuthPublicController } from './auth.public.controller';
 import { AuthService } from './auth.service';
 
 @Module({
@@ -15,7 +16,7 @@ import { AuthService } from './auth.service';
       signOptions: { expiresIn: serverConfig.jwt_access_token_expiration_time },
     }),
   ],
-  controllers: [AuthPublicController],
+  controllers: [AuthAuthController, AuthPublicController],
   providers: [
     AuthService,
     UserRepository,
