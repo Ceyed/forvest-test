@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from '../base.entity';
+import { UserBookmarksEntity } from '../user-bookmarks/user-bookmarks.entity';
 
 @Entity('book')
 export class BookEntity extends BaseEntity {
@@ -28,4 +29,7 @@ export class BookEntity extends BaseEntity {
   @IsNumber()
   @Min(0)
   numberOfPages: number;
+
+  @OneToMany(() => UserBookmarksEntity, (bookmark) => bookmark.book)
+  bookmarks: UserBookmarksEntity[];
 }

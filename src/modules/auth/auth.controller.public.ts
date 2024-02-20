@@ -1,6 +1,7 @@
 import { Get } from '@nestjs/common';
 import { AuthController } from 'libs/src/lib/decorators/auth-controller.decorator';
 import { User } from 'libs/src/lib/decorators/user.decorator';
+import { UserAuth } from 'libs/src/lib/dtos/user-auth.dto';
 import { SwaggerTagsEnum } from 'libs/src/lib/enums/swagger-tags.enum';
 import { AuthService } from './auth.service';
 
@@ -10,7 +11,7 @@ export class AuthAuthController {
   constructor(private readonly _authService: AuthService) {}
 
   @Get('profile')
-  getProfile(@User() user) {
+  getProfile(@User() user: UserAuth) {
     return user;
   }
 }

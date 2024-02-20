@@ -12,6 +12,10 @@ export class BookRepository extends Repository<BookEntity> {
     super(BookEntity, _dataSource.createEntityManager());
   }
 
+  getOneOrFail(id: uuid): Promise<BookEntity> {
+    return this.findOneByOrFail({ id });
+  }
+
   getAll(): Promise<BookEntity[]> {
     return this.find();
   }
