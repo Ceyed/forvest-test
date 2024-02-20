@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateUserDto } from 'libs/src/lib/dtos/users/create-user.dto';
-import { UpdateUserDto } from 'libs/src/lib/dtos/users/update-user.dto';
+import { CreateUserDto } from 'libs/src/lib/dtos/user/create-user.dto';
+import { UpdateUserDto } from 'libs/src/lib/dtos/user/update-user.dto';
 import { UserEntity } from 'libs/src/lib/entities/user/user.entity';
 import { UserRepository } from 'libs/src/lib/entities/user/user.repository';
 import { serverConfig } from 'src/configs/server.config';

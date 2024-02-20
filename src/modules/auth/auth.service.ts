@@ -1,7 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { LoginDto } from 'libs/src/lib/dtos/users/login.dto';
-import { TokenDto } from 'libs/src/lib/dtos/users/token.dto';
+import { LoginDto } from 'libs/src/lib/dtos/user/login.dto';
+import { TokenDto } from 'libs/src/lib/dtos/user/token.dto';
 import { UserEntity } from 'libs/src/lib/entities/user/user.entity';
 import { UserRepository } from 'libs/src/lib/entities/user/user.repository';
 import { SerializeMobile } from 'libs/src/lib/utils/serialize-mobile.utils';
