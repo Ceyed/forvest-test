@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { serverConfig } from 'src/configs/server.config';
 import { DataSource, Repository } from 'typeorm';
 import { uuid } from '../../common/uuid';
 import { FileTypeEnum } from '../../enums/file-type.enum';
@@ -10,15 +11,16 @@ export class FileRepository extends Repository<FileEntity> {
     super(FileEntity, _dataSource.createEntityManager());
   }
 
-  async uploadAvatar(file: Express.Multer.File, userId: uuid): Promise<FileEntity> {
+  async upload(file: Express.Multer.File, userId: uuid, type: FileTypeEnum): Promise<FileEntity> {
     const fileEntity: FileEntity = await this.save({
       size: file.size,
       mimeType: file.mimetype,
       originalName: file.originalname,
       name: file.filename,
       localPath: file.path,
-      type: FileTypeEnum.Avatar,
+      type,
       creatorId: userId,
+      fileUrl: `http://${serverConfig.host}:${serverConfig.port}/${file.path}`,
     });
     return fileEntity;
   }

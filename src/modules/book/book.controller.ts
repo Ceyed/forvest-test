@@ -1,5 +1,6 @@
-import { Body, Param, Patch, Post, Put } from '@nestjs/common';
+import { Body, Param, Patch, Post, Put, UploadedFile } from '@nestjs/common';
 import { uuid } from 'libs/src/lib/common/uuid';
+import { ApiCustomFile } from 'libs/src/lib/decorators/api-file.decorator';
 import { AuthController } from 'libs/src/lib/decorators/auth-controller.decorator';
 import { User } from 'libs/src/lib/decorators/user.decorator';
 import { CreateBookDto } from 'libs/src/lib/dtos/book/create-book.dto';
@@ -17,6 +18,16 @@ export class BookController {
   @Post()
   create(@Body() createBookDto: CreateBookDto): Promise<BookEntity> {
     return this._bookService.create(createBookDto);
+  }
+
+  @Put('upload-book-file/:id')
+  @ApiCustomFile(false)
+  uploadAvatar(
+    @UploadedFile() file: Express.Multer.File,
+    @Param('id') id: uuid,
+    @User() user: UserAuth,
+  ): Promise<UpdateResultDto> {
+    return this._bookService.uploadBook(id, file, user);
   }
 
   @Put(':id')

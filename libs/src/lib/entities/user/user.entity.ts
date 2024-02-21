@@ -44,9 +44,9 @@ export class UserEntity extends BaseEntity {
   @IsUUID()
   avatarFileId?: uuid;
 
-  @OneToOne(() => FileEntity)
+  @OneToOne(() => FileEntity, { nullable: true })
   @JoinColumn({ name: 'avatarFileId' })
-  avatar: FileEntity;
+  avatar?: FileEntity;
 
   @OneToMany(() => UserBookmarksEntity, (bookmark) => bookmark.user)
   bookmarks: UserBookmarksEntity[];

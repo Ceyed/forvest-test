@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsNumber, IsString, IsUUID } from 'class-validator';
-import { serverConfig } from 'src/configs/server.config';
-import { AfterLoad, Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { uuid } from '../../common/uuid';
 import { FileTypeEnum } from '../../enums/file-type.enum';
 import { BaseEntity } from '../base.entity';
@@ -54,16 +53,13 @@ export class FileEntity extends BaseEntity {
   @IsNotEmpty()
   creatorId: uuid;
 
-  @OneToOne(() => UserEntity)
+  @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'creatorId' })
   user: UserEntity;
 
+  @Column()
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
   fileUrl: string;
-
-  @AfterLoad()
-  generateFileUrl() {
-    if (this.localPath) {
-      this.fileUrl = `http://${serverConfig.host}:${serverConfig.port}/${this.localPath}`;
-    }
-  }
 }

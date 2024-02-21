@@ -10,6 +10,7 @@ import { UserBookmarksEntity } from 'libs/src/lib/entities/user-bookmarks/user-b
 import { UserBookmarkRepository } from 'libs/src/lib/entities/user-bookmarks/user-bookmarks.repository';
 import { UserEntity } from 'libs/src/lib/entities/user/user.entity';
 import { UserRepository } from 'libs/src/lib/entities/user/user.repository';
+import { FileTypeEnum } from 'libs/src/lib/enums/file-type.enum';
 import { serverConfig } from 'src/configs/server.config';
 import { UpdateResult } from 'typeorm';
 const bcrypt = require('bcrypt');
@@ -48,7 +49,11 @@ export class UserService {
 
   async uploadAvatar(file: Express.Multer.File, user: UserAuth): Promise<UpdateResultDto> {
     if (!file) throw new NotFoundException('File not founded');
-    const uploadAvatarResult: FileEntity = await this._fileRepository.uploadAvatar(file, user.id);
+    const uploadAvatarResult: FileEntity = await this._fileRepository.upload(
+      file,
+      user.id,
+      FileTypeEnum.Avatar,
+    );
     if (uploadAvatarResult) {
       const UpdateResult: UpdateResult = await this._userRepository.update(user.id, {
         avatarFileId: uploadAvatarResult.id,

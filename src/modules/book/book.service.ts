@@ -1,18 +1,24 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { uuid } from 'libs/src/lib/common/uuid';
 import { CreateBookDto } from 'libs/src/lib/dtos/book/create-book.dto';
 import { UpdateBookDto } from 'libs/src/lib/dtos/book/update-book.dto';
 import { UpdateResultDto } from 'libs/src/lib/dtos/update-result.dto';
+import { UserAuth } from 'libs/src/lib/dtos/user-auth.dto';
 import { BookEntity } from 'libs/src/lib/entities/book/book.entity';
 import { BookRepository } from 'libs/src/lib/entities/book/book.repository';
+import { FileEntity } from 'libs/src/lib/entities/file/file.entity';
+import { FileRepository } from 'libs/src/lib/entities/file/file.repository';
 import { UserBookmarksEntity } from 'libs/src/lib/entities/user-bookmarks/user-bookmarks.entity';
 import { UserBookmarkRepository } from 'libs/src/lib/entities/user-bookmarks/user-bookmarks.repository';
+import { FileTypeEnum } from 'libs/src/lib/enums/file-type.enum';
+import { UpdateResult } from 'typeorm';
 
 @Injectable()
 export class BookService {
   constructor(
     private readonly _bookRepository: BookRepository,
     private readonly _userBookmarkRepository: UserBookmarkRepository,
+    private readonly _fileRepository: FileRepository,
   ) {}
 
   getAll(): Promise<BookEntity[]> {
@@ -35,6 +41,23 @@ export class BookService {
       userId,
     });
     return { status: !!bookmark };
+  }
+
+  async uploadBook(id: uuid, file: Express.Multer.File, user: UserAuth): Promise<UpdateResultDto> {
+    if (!file) throw new NotFoundException('File not founded');
+    const fileEntity: FileEntity = await this._fileRepository.upload(
+      file,
+      user.id,
+      FileTypeEnum.Book,
+    );
+    if (fileEntity) {
+      const updateBookResult: UpdateResult = await this._bookRepository.update(id, {
+        fileId: fileEntity.id,
+        downloadUrl: fileEntity.fileUrl,
+      });
+      return { status: !!updateBookResult.affected };
+    }
+    return { status: false };
   }
 
   private _addToBookmarkValidation = async (bookId: uuid, userId: uuid): Promise<void> => {
