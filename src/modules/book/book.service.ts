@@ -43,12 +43,17 @@ export class BookService {
     return { status: !!bookmark };
   }
 
-  async uploadBook(id: uuid, file: Express.Multer.File, user: UserAuth): Promise<UpdateResultDto> {
-    if (!file) throw new NotFoundException('File not founded');
+  async uploadBookFile(
+    id: uuid,
+    file: Express.Multer.File,
+    user: UserAuth,
+  ): Promise<UpdateResultDto> {
+    await this._uploadBookValidation(id, file);
+
     const fileEntity: FileEntity = await this._fileRepository.upload(
       file,
       user.id,
-      FileTypeEnum.Book,
+      FileTypeEnum.BookFile,
     );
     if (fileEntity) {
       const updateBookResult: UpdateResult = await this._bookRepository.update(id, {
@@ -60,10 +65,33 @@ export class BookService {
     return { status: false };
   }
 
+  async uploadBookImage(id: uuid, file: Express.Multer.File, user: UserAuth) {
+    await this._uploadBookValidation(id, file);
+
+    const image: FileEntity = await this._fileRepository.upload(
+      file,
+      user.id,
+      FileTypeEnum.BookImage,
+    );
+    if (image) {
+      const updateBookResult: UpdateResult = await this._bookRepository.update(id, {
+        imageId: image.id,
+        imageUrl: image.fileUrl,
+      });
+      return { status: !!updateBookResult.affected };
+    }
+    return { status: false };
+  }
+
   private _addToBookmarkValidation = async (bookId: uuid, userId: uuid): Promise<void> => {
     await this._bookRepository.getOneOrFail(bookId);
     if (await this._userBookmarkRepository.bookmarkExists(bookId, userId)) {
       throw new BadRequestException('You already bookmarked this book');
     }
+  };
+
+  private _uploadBookValidation = async (id: uuid, file: Express.Multer.File): Promise<void> => {
+    if (!file) throw new NotFoundException('File not founded');
+    await this._bookRepository.getOneOrFail(id);
   };
 }

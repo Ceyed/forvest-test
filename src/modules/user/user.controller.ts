@@ -23,7 +23,7 @@ export class UserController {
   }
 
   @Post('upload-avatar')
-  @ApiCustomFile(false)
+  @ApiCustomFile()
   uploadAvatar(
     @UploadedFile() file: Express.Multer.File,
     @User() user: UserAuth,

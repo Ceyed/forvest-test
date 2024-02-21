@@ -1,4 +1,5 @@
 export enum FileTypeEnum {
   Avatar = 'avatar',
-  Book = 'book',
+  BookFile = 'book',
+  BookImage = 'book_image',
 }

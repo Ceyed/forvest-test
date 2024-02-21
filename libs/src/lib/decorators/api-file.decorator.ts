@@ -4,7 +4,7 @@ import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { diskStorage } from 'multer';
 import { UPLOAD_MAX_LIMIT, UPLOAD_SUPPORTED_FORMATS } from 'src/configs/upload.config';
 
-export function ApiCustomFile(required = false) {
+export function ApiCustomFile(required = true) {
   return applyDecorators(
     UseInterceptors(
       FileInterceptor('file', {

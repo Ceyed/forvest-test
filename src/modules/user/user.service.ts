@@ -49,6 +49,7 @@ export class UserService {
 
   async uploadAvatar(file: Express.Multer.File, user: UserAuth): Promise<UpdateResultDto> {
     if (!file) throw new NotFoundException('File not founded');
+
     const uploadAvatarResult: FileEntity = await this._fileRepository.upload(
       file,
       user.id,

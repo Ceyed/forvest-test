@@ -6,4 +6,6 @@ export class CreateBookDto extends OmitType(BookEntity, [
   ...GLOBAL_OMIT_LIST,
   'file',
   'fileId',
+  'imageId',
+  'imageUrl',
 ] as const) {}

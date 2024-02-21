@@ -21,13 +21,23 @@ export class BookController {
   }
 
   @Put('upload-book-file/:id')
-  @ApiCustomFile(false)
+  @ApiCustomFile()
   uploadAvatar(
     @UploadedFile() file: Express.Multer.File,
     @Param('id') id: uuid,
     @User() user: UserAuth,
   ): Promise<UpdateResultDto> {
-    return this._bookService.uploadBook(id, file, user);
+    return this._bookService.uploadBookFile(id, file, user);
+  }
+
+  @Put('upload-book-image/:id')
+  @ApiCustomFile()
+  uploadImage(
+    @UploadedFile() file: Express.Multer.File,
+    @Param('id') id: uuid,
+    @User() user: UserAuth,
+  ): Promise<UpdateResultDto> {
+    return this._bookService.uploadBookImage(id, file, user);
   }
 
   @Put(':id')

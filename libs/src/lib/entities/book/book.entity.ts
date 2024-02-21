@@ -8,11 +8,17 @@ import { UserBookmarksEntity } from '../user-bookmarks/user-bookmarks.entity';
 
 @Entity('book')
 export class BookEntity extends BaseEntity {
-  @Column()
-  @ApiProperty()
+  @Column({ nullable: true })
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  imageId?: uuid;
+
+  @Column({ nullable: true })
+  @ApiPropertyOptional()
   @IsString()
-  @IsNotEmpty()
-  image: string;
+  @IsOptional()
+  imageUrl?: string;
 
   @Column()
   @ApiProperty()
