@@ -19,7 +19,7 @@
 
 ## Requirements
 
-- Installed `Redis` and `MySql`
+- Install `Redis` and `MySql`
 - `MySql` user **must** have `data` and `structure` privileges (insert data and create table)
 - `Swagger` is available. api list will be printed at server bootstrap
 - Remember to fill your `.env` file based on `.env.sample`
