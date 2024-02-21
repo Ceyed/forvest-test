@@ -11,7 +11,6 @@
 
   ابزار ها:
 
-- از فریم ورک Nestjs استفاده بشه
 - از MySQL به عنوان دیتابیس اصلی استفاده کنین
 - جاهایی که الزمه از Redis یا Memcached با انتخاب خودتون برای بحث کش کردن استفاده کنین
 - برای authentication و authorization از توکن jwt استفاده کنین
@@ -25,8 +24,8 @@
 - `Swagger` is available. api list will be printed at server bootstrap
 - Remember to fill your `.env` file based on `.env.sample`
 - Hint: It's a good idea to first create a user and login to access all routes:
-  1. To register: `User (Tag)` -> /public/user/register
-  2. For login: `Auth (Tag)` -> public/auth/login
+  1. To register: `User (Swagger Tag)` -> /public/user/register
+  2. For login: `Auth (Swagger Tag)` -> public/auth/login
 
 ## Installation
 
