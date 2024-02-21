@@ -1,7 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsMobilePhone, IsNotEmpty, IsString } from 'class-validator';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsMobilePhone, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
+import { uuid } from '../../common/uuid';
 import { BaseEntity } from '../base.entity';
+import { FileEntity } from '../file/file.entity';
 import { UserBookmarksEntity } from '../user-bookmarks/user-bookmarks.entity';
 
 @Entity('user')
@@ -28,13 +30,23 @@ export class UserEntity extends BaseEntity {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  avatarLink: string;
-
-  @Column()
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
   password: string;
+
+  @Column({ nullable: true })
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  avatarLink?: string;
+
+  @Column({ nullable: true })
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  avatarFileId?: uuid;
+
+  @OneToOne(() => FileEntity)
+  @JoinColumn({ name: 'avatarFileId' })
+  avatar: FileEntity;
 
   @OneToMany(() => UserBookmarksEntity, (bookmark) => bookmark.user)
   bookmarks: UserBookmarksEntity[];

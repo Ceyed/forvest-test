@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as express from 'express';
 import { AppModule } from './app.module';
 import { serverConfig } from './configs/server.config';
 
@@ -18,8 +19,9 @@ async function bootstrap() {
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  // app.use(swaggerStats.getMiddleware({ swaggerSpace: document }));
   SwaggerModule.setup('docs', app, document, { swaggerOptions: { docExpansion: 'all' } });
+
+  app.use('/uploads', express.static('uploads'));
 
   await app.listen(serverConfig.port, serverConfig.host, () => {
     console.log(`🐼 Server is running on: http://${serverConfig.host}:${serverConfig.port}`);
