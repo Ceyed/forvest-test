@@ -11,7 +11,9 @@ import { FileRepository } from 'libs/src/lib/entities/file/file.repository';
 import { UserBookmarksEntity } from 'libs/src/lib/entities/user-bookmarks/user-bookmarks.entity';
 import { UserBookmarkRepository } from 'libs/src/lib/entities/user-bookmarks/user-bookmarks.repository';
 import { FileTypeEnum } from 'libs/src/lib/enums/file-type.enum';
+import { RedisEntityEnum } from 'libs/src/lib/enums/redis-entities.enum';
 import { UpdateResult } from 'typeorm';
+import { RedisHelperService } from '../redis-helper/redis-helper.service';
 
 @Injectable()
 export class BookService {
@@ -19,22 +21,36 @@ export class BookService {
     private readonly _bookRepository: BookRepository,
     private readonly _userBookmarkRepository: UserBookmarkRepository,
     private readonly _fileRepository: FileRepository,
+    private readonly _redisHelperService: RedisHelperService,
   ) {}
 
-  getAll(): Promise<BookEntity[]> {
-    return this._bookRepository.getAll();
+  async getAll(): Promise<BookEntity[]> {
+    const key: string = this._redisHelperService.getKey(RedisEntityEnum.Book, 'all');
+    const redisData: BookEntity[] = await this._redisHelperService.get<BookEntity[]>(key);
+    if (redisData) {
+      return redisData;
+    }
+
+    const databaseData: BookEntity[] = await this._bookRepository.getAll();
+    await this._redisHelperService.set<BookEntity[]>(key, databaseData);
+    return databaseData;
   }
 
-  create(createBookDto: CreateBookDto): Promise<BookEntity> {
+  async create(createBookDto: CreateBookDto): Promise<BookEntity> {
+    await this._removeRedisCacheForAllBooks();
     return this._bookRepository.add(createBookDto);
   }
 
   async update(id: uuid, updateBookDto: UpdateBookDto): Promise<UpdateResultDto> {
     await this._bookRepository.getOneOrFail(id);
+    await this._removeRedisCacheForAllBooks();
     return this._bookRepository.edit(id, updateBookDto);
   }
 
   async addToBookmark(id: uuid, userId: uuid): Promise<UpdateResultDto> {
+    const key: string = this._redisHelperService.getKey(RedisEntityEnum.Bookmark, userId);
+    await this._redisHelperService.delete(key);
+
     await this._addToBookmarkValidation(id, userId);
     const bookmark: UserBookmarksEntity = await this._userBookmarkRepository.save({
       bookId: id,
@@ -93,5 +109,10 @@ export class BookService {
   private _uploadBookValidation = async (id: uuid, file: Express.Multer.File): Promise<void> => {
     if (!file) throw new NotFoundException('File not founded');
     await this._bookRepository.getOneOrFail(id);
+  };
+
+  private _removeRedisCacheForAllBooks = async (): Promise<void> => {
+    const key: string = this._redisHelperService.getKey(RedisEntityEnum.Book, 'all');
+    await this._redisHelperService.delete(key);
   };
 }

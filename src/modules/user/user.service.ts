@@ -11,8 +11,10 @@ import { UserBookmarkRepository } from 'libs/src/lib/entities/user-bookmarks/use
 import { UserEntity } from 'libs/src/lib/entities/user/user.entity';
 import { UserRepository } from 'libs/src/lib/entities/user/user.repository';
 import { FileTypeEnum } from 'libs/src/lib/enums/file-type.enum';
+import { RedisEntityEnum } from 'libs/src/lib/enums/redis-entities.enum';
 import { serverConfig } from 'src/configs/server.config';
 import { UpdateResult } from 'typeorm';
+import { RedisHelperService } from '../redis-helper/redis-helper.service';
 const bcrypt = require('bcrypt');
 
 @Injectable()
@@ -21,6 +23,7 @@ export class UserService {
     private readonly _userRepository: UserRepository,
     private readonly _userBookmarkRepository: UserBookmarkRepository,
     private readonly _fileRepository: FileRepository,
+    private readonly _redisHelperService: RedisHelperService,
   ) {}
 
   async register(createUserDto: CreateUserDto): Promise<Partial<UserEntity>> {
@@ -32,19 +35,32 @@ export class UserService {
     return otherUserFields;
   }
 
-  private _checkExistingUser = async (data: CreateUserDto | UpdateUserDto): Promise<void> => {
-    const user: UserEntity = await this._userRepository.getOne({ mobile: data.mobile });
-    if (user) {
-      throw new BadRequestException('Mobile is used. login or try another mobile');
+  async getUserBookmarks(id: uuid): Promise<UserBookmarksEntity[]> {
+    const key: string = this._redisHelperService.getKey(RedisEntityEnum.Bookmark, id);
+    const redisData: UserBookmarksEntity[] =
+      await this._redisHelperService.get<UserBookmarksEntity[]>(key);
+    if (redisData) {
+      return redisData;
     }
-  };
 
-  getUserBookmarks(id: uuid): Promise<UserBookmarksEntity[]> {
-    return this._userBookmarkRepository.getUserBookmarks(id);
+    const databaseData: UserBookmarksEntity[] =
+      await this._userBookmarkRepository.getUserBookmarks(id);
+    await this._redisHelperService.set<UserBookmarksEntity[]>(key, databaseData);
+    return databaseData;
   }
 
-  getAllBookmarks(): Promise<UserBookmarksEntity[]> {
-    return this._userBookmarkRepository.getAllBookmarks();
+  async getAllBookmarks(): Promise<UserBookmarksEntity[]> {
+    const key: string = this._redisHelperService.getKey(RedisEntityEnum.Bookmark, 'all');
+    const redisData: UserBookmarksEntity[] =
+      await this._redisHelperService.get<UserBookmarksEntity[]>(key);
+    if (redisData) {
+      return redisData;
+    }
+
+    const databaseData: UserBookmarksEntity[] =
+      await this._userBookmarkRepository.getAllBookmarks();
+    await this._redisHelperService.set<UserBookmarksEntity[]>(key, databaseData);
+    return databaseData;
   }
 
   async uploadAvatar(file: Express.Multer.File, user: UserAuth): Promise<UpdateResultDto> {
@@ -64,4 +80,11 @@ export class UserService {
     }
     return { status: false };
   }
+
+  private _checkExistingUser = async (data: CreateUserDto | UpdateUserDto): Promise<void> => {
+    const user: UserEntity = await this._userRepository.getOne({ mobile: data.mobile });
+    if (user) {
+      throw new BadRequestException('Mobile is used. login or try another mobile');
+    }
+  };
 }
